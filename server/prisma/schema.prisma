@@ -1,0 +1,123 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id               String     @id @default(cuid())
+  email            String     @unique
+  password         String
+  role             Role       @default(USER)
+  createdAt        DateTime   @default(now()) @map(name: "created_at")
+  updatedAt        DateTime   @updatedAt @map(name: "updated_at")
+  status           UserStatus @default(ACTIVE)
+  suspensionReason String?
+
+  profile  Profile?
+  Team     Team[]
+  UserTeam UserTeam[]
+  Worklog  Worklog[]
+  @@map(name: "users")
+}
+
+model Profile {
+  id           Int      @id @default(autoincrement())
+  firstName    String   @map(name: "first_name")
+  lastName     String   @map(name: "last_name")
+  address      String?
+  addressCity  String?  @map(name: "address_city")
+  addressState String?  @map(name: "address_state")
+  zipCode      String?  @map(name: "zip_code")
+  phoneNumber  String?  @map(name: "phone_number")
+  user         User     @relation(fields: [userId], references: [id])
+  userId       String   @map(name: "user_id")
+  createdAt    DateTime @default(now()) @map(name: "created_at")
+  updatedAt    DateTime @updatedAt @map(name: "updated_at")
+
+  @@index([userId], name: "profile.user_id")
+  @@map(name: "profile")
+}
+
+model Team {
+  id        String     @id @default(cuid())
+  teamName  String     @map(name: "team_name")
+  status    TeamStatus @default(ACTIVE)
+  createdAt DateTime   @default(now()) @map(name: "created_at")
+  updatedAt DateTime   @updatedAt @map(name: "updated_at")
+  user      User       @relation(fields: [createdBy], references: [id])
+  createdBy String     @map(name: "created_by")
+
+
+  UserTeam UserTeam[]
+  @@index([createdBy], name: "teams.created_by")
+  @@map(name: "teams")
+}
+
+model UserTeam {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @map(name: "user_id")
+  team      Team     @relation(fields: [teamId], references: [id])
+  teamId    String   @map(name: "team_id")
+  role      TeamRole @default(MEMBER)
+  addedBy   String   @map(name: "added_by")
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @updatedAt @map(name: "updated_at")
+
+  @@index([userId], name: "user_teams.user_id")
+  @@index([teamId], name: "user_teams.team_id")
+  @@map(name: "user_teams")
+}
+
+model Worklog {
+  id         Int      @id @default(autoincrement())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String   @map(name: "user_id")
+  createdAt  DateTime @default(now()) @map(name: "created_at")
+  updatedAt  DateTime @updatedAt @map(name: "updated_at")
+  reviewedBy String?  @map(name: "reviewed_by")
+  remark     String?
+
+  WorklogItem WorklogItem[]
+  @@index([userId], name: "worklog.user_id")
+  @@map(name: "worklogs")
+}
+
+model WorklogItem {
+  id        Int      @id @default(autoincrement())
+  worklog   Worklog  @relation(fields: [worklogId], references: [id])
+  worklogId Int      @map(name: "worklog_id")
+  timeFrom  DateTime @map(name: "time_from") @db.Time
+  timeTo    DateTime @map(name: "time_to") @db.Time
+  workDone  String   @map(name: "work_done")
+
+  @@index([worklogId], name: "worklog_items.worklog_id")
+  @@map(name: "worklog_items")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum TeamRole {
+  MEMBER
+  HEAD
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  DELETED
+  SUSPENDED
+}
+
+enum TeamStatus {
+  ACTIVE
+  DELETED
+  SUSPENDED
+}
