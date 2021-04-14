@@ -4,6 +4,7 @@ import { Context } from "../../context";
 
 import { User, UserResponse } from "../../schema/User.schema";
 import { UserInput, UserUniqueInput } from "./inputs";
+import { validateRegisterInput } from "./validation/register.validation";
 
 @Resolver()
 export class UserResolver {
@@ -14,17 +15,36 @@ export class UserResolver {
   }
 
   @Query(() => [User])
-  async users(@Ctx() ctx: Context): Promise<User[]> {
-    const users = ctx.prisma.user.findMany();
-    return users;
+  users(@Ctx() ctx: Context): Promise<User[]> {
+    return ctx.prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        status: true,
+        suspensionReason: true,
+      },
+    });
   }
   @Query(() => User, { nullable: true })
-  async user(
+  user(
     @Arg("where") where: UserUniqueInput,
     @Ctx() ctx: Context
   ): Promise<User | null> {
-    const user = ctx.prisma.user.findUnique({ where });
-    return user;
+    return ctx.prisma.user.findUnique({
+      where,
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+        status: true,
+        suspensionReason: true,
+      },
+    });
   }
 
   @Mutation(() => UserResponse)
@@ -32,6 +52,10 @@ export class UserResolver {
     @Arg("data") data: UserInput,
     @Ctx() ctx: Context
   ): Promise<UserResponse> {
+    const errors = validateRegisterInput(data);
+    if (errors) {
+      return errors;
+    }
     try {
       const foundUser = await ctx.prisma.user.findFirst({
         where: { email: data.email },
@@ -47,6 +71,7 @@ export class UserResolver {
           ],
         };
       }
+
       const hashedPassword = await argon2.hash(data.password);
       const createdUser = await ctx.prisma.user.create({
         data: {

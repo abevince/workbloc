@@ -27,7 +27,7 @@ export class User {
   email: string;
 
   // @Field(() => String)
-  password: string;
+  password?: string;
 
   @Field(() => Role, { defaultValue: "USER" })
   role: "USER" | "ADMIN";
@@ -36,7 +36,7 @@ export class User {
   status: "ACTIVE" | "DELETED" | "SUSPENDED";
 
   @Field(() => String, { nullable: true })
-  suspensionReason: string | null;
+  suspensionReason?: string | null;
 
   @Field(() => Date)
   createdAt: Date;
