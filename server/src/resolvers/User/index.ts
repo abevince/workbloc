@@ -86,4 +86,41 @@ export class UserResolver {
       throw error;
     }
   }
+
+  @Mutation(() => UserResponse)
+  async login(
+    @Arg("data") data: UserInput,
+    @Ctx() ctx: Context
+  ): Promise<UserResponse> {
+    try {
+      const foundUser = await ctx.prisma.user.findFirst({
+        where: { email: data.email },
+      });
+      if (!foundUser) {
+        return {
+          errors: [
+            {
+              field: "login",
+              message: "Invalid email or password",
+            },
+          ],
+        };
+      }
+      const valid = await argon2.verify(foundUser.password, data.password);
+      if (!valid) {
+        return {
+          errors: [
+            {
+              field: "login",
+              message: "Invalid email or password",
+            },
+          ],
+        };
+      }
+      return { user: foundUser };
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
 }
