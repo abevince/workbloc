@@ -18,7 +18,7 @@ async function main() {
   app.register(mercurius, {
     schema,
     context: buildContext,
-    graphiql: true,
+    graphiql: "playground",
   });
   const PORT = parseInt(process.env.PORT || "") || 4001;
 
