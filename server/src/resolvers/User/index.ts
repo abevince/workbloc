@@ -1,10 +1,22 @@
 import argon2 from "argon2";
-import { Resolver, Query, Mutation, Arg, Ctx } from "type-graphql";
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Arg,
+  Ctx,
+  UseMiddleware,
+} from "type-graphql";
+
 import { Context } from "../../context";
 
 import { User, UserResponse } from "../../schema/User.schema";
 import { UserInput, UserUniqueInput } from "./inputs";
 import { validateRegisterInput } from "./validation/register.validation";
+import { createSession } from "../../utils/createSession";
+import { setTokenToCookie } from "../../utils/setTokensToCookie";
+import { authorizeUser } from "../../utils/authorizeUser";
+import { isAuth } from "../../middleware/isAuth";
 
 @Resolver()
 export class UserResolver {
@@ -12,6 +24,13 @@ export class UserResolver {
   hello(): string {
     console.log("hey");
     return "hello world";
+  }
+
+  @Query()
+  @UseMiddleware(isAuth)
+  me(): string {
+    console.log("Hey  sdfasdfasdfasdfasdf sadfasdfsadf    ");
+    return "meeeeee";
   }
 
   @Query(() => [User])
@@ -90,34 +109,34 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async login(
     @Arg("data") data: UserInput,
-    @Ctx() ctx: Context
+    @Ctx() { prisma, request, reply, redis }: Context
   ): Promise<UserResponse> {
     try {
-      const foundUser = await ctx.prisma.user.findFirst({
-        where: { email: data.email },
+      const { isAuthorized, user } = await authorizeUser(prisma, data);
+      if (!isAuthorized || user === null) {
+        return {
+          errors: [
+            {
+              field: "login",
+              message: "Invalid email or password",
+            },
+          ],
+        };
+      }
+
+      const connectionInformation = {
+        ip: request.ip,
+        userAgent: request.headers["user-agent"],
+      };
+
+      const sessionToken = createSession(redis, user.id, connectionInformation);
+
+      setTokenToCookie({
+        sessionToken,
+        reply,
       });
-      if (!foundUser) {
-        return {
-          errors: [
-            {
-              field: "login",
-              message: "Invalid email or password",
-            },
-          ],
-        };
-      }
-      const valid = await argon2.verify(foundUser.password, data.password);
-      if (!valid) {
-        return {
-          errors: [
-            {
-              field: "login",
-              message: "Invalid email or password",
-            },
-          ],
-        };
-      }
-      return { user: foundUser };
+
+      return { user: user };
     } catch (error) {
       console.log(error);
       throw error;
