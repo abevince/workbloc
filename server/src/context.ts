@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { FastifyReply, FastifyRequest } from "fastify";
 import Redis, { Redis as RedisT } from "ioredis";
+import { User } from "./schema/User.schema";
 import { SessionObjectType } from "./utils/createSession";
 
 const redis = new Redis({
@@ -12,14 +13,10 @@ const prisma = new PrismaClient({
   log: ["query", "info", "warn"],
 });
 
-interface UserAuthDataType {
-  userId: string;
-  role: "ADMIN" | "USER";
-}
-
 interface AuthType {
+  sessionToken: string;
   isAuthenticated: boolean;
-  user: UserAuthDataType | null;
+  user: Partial<User> | null;
 }
 
 export interface Context {
@@ -43,7 +40,7 @@ export const buildContext = async (
     request: req,
     reply: reply,
     redis: redis,
-    auth: { isAuthenticated: false, user: null },
+    auth: { sessionToken: "", isAuthenticated: false, user: null },
   };
   try {
     if (!req.cookies[process.env.COOKIE_NAME || "sessid"]) {
@@ -78,8 +75,13 @@ export const buildContext = async (
     return {
       ...ctx,
       auth: {
+        sessionToken: value,
         isAuthenticated: true,
-        user: { userId: foundUser.id, role: foundUser.role },
+        user: {
+          id: foundUser.id,
+          role: foundUser.role,
+          status: foundUser.status,
+        },
       },
     };
   } catch (error) {
