@@ -26,11 +26,40 @@ export class UserResolver {
     return "hello world";
   }
 
-  @Query()
+  @Query(() => UserResponse)
   @UseMiddleware(isAuth)
-  me(): string {
-    console.log("Hey  sdfasdfasdfasdfasdf sadfasdfsadf    ");
-    return "meeeeee";
+  async me(@Ctx() ctx: Context): Promise<UserResponse> {
+    try {
+      if (!ctx.auth.user) {
+        return {
+          errors: [
+            {
+              field: "auth",
+              message: "You're not logged in",
+            },
+          ],
+        };
+      }
+
+      const user = await ctx.prisma.user.findUnique({
+        where: { id: ctx.auth.user.id },
+      });
+      if (!user) {
+        return {
+          errors: [
+            {
+              field: "user",
+              message: "User not found",
+            },
+          ],
+        };
+      }
+
+      return { user };
+    } catch (error) {
+      console.log(error);
+      throw Error(error);
+    }
   }
 
   @Query(() => [User])
@@ -113,12 +142,24 @@ export class UserResolver {
   ): Promise<UserResponse> {
     try {
       const { isAuthorized, user } = await authorizeUser(prisma, data);
-      if (!isAuthorized || user === null) {
+      if (!isAuthorized || !user) {
         return {
           errors: [
             {
               field: "login",
               message: "Invalid email or password",
+            },
+          ],
+        };
+      }
+
+      if (user.status === "SUSPENDED") {
+        return {
+          errors: [
+            {
+              field: "login",
+              message:
+                "Your account is suspended. Can't proceed with the login.",
             },
           ],
         };
