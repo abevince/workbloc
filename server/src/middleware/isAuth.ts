@@ -6,15 +6,21 @@ const AUTH_MESSAGE =
   "Access denied. You need to be authorized to perform this action.";
 
 export const isAuth: MiddlewareFn<Context> = async (
-  { context: { auth } },
+  { context: { auth, reply, redis } },
   next
 ) => {
+  const authError = Error(AUTH_MESSAGE);
   if (!auth) {
-    throw new Error(AUTH_MESSAGE);
+    throw authError;
   }
 
   if (!auth.isAuthenticated || !auth.user) {
-    throw new Error(AUTH_MESSAGE);
+    throw authError;
+  }
+  if (auth.user.status !== "ACTIVE") {
+    reply.clearCookie(process.env.COOKIE_NAME || "sessid");
+    redis.del(auth.sessionToken);
+    throw Error("Suspended account. Logging out now.");
   }
 
   return next();
