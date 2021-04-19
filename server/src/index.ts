@@ -1,6 +1,7 @@
 import "reflect-metadata";
 import Fastify, { FastifyInstance } from "fastify";
 import mercurius from "mercurius";
+import fastifyCors from "fastify-cors";
 import cookie, { FastifyCookieOptions } from "fastify-cookie";
 
 import { UserResolver } from "./resolvers/User";
@@ -10,7 +11,10 @@ import { buildContext } from "./context";
 
 async function main() {
   const app: FastifyInstance = Fastify();
-
+  app.register(fastifyCors, {
+    origin: ["http://localhost:3000"],
+    credentials: true,
+  });
   app.register(cookie, {
     secret: process.env.COOKIE_SIGNATURE, // for cookies signature
   } as FastifyCookieOptions);
