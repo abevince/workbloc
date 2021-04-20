@@ -2,6 +2,7 @@ import "reflect-metadata";
 import Fastify, { FastifyInstance } from "fastify";
 import mercurius from "mercurius";
 import fastifyCors from "fastify-cors";
+import sensible from "fastify-sensible";
 import cookie, { FastifyCookieOptions } from "fastify-cookie";
 
 import { UserResolver } from "./resolvers/User";
@@ -15,6 +16,7 @@ async function main() {
     origin: ["http://localhost:3000"],
     credentials: true,
   });
+  app.register(sensible);
   app.register(cookie, {
     secret: process.env.COOKIE_SIGNATURE, // for cookies signature
   } as FastifyCookieOptions);
