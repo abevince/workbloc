@@ -9,18 +9,17 @@ export const isAuth: MiddlewareFn<Context> = async (
   { context: { auth, reply, redis } },
   next
 ) => {
-  const authError = Error(AUTH_MESSAGE);
   if (!auth) {
-    throw authError;
+    throw reply.unauthorized(AUTH_MESSAGE);
   }
 
   if (!auth.isAuthenticated || !auth.user) {
-    throw authError;
+    throw reply.unauthorized(AUTH_MESSAGE);
   }
   if (auth.user.status !== "ACTIVE") {
     reply.clearCookie(process.env.COOKIE_NAME || "sessid");
     redis.del(auth.sessionToken);
-    throw Error("Suspended account. Logging out now.");
+    throw reply.forbidden("Suspended account. Logging out now.");
   }
 
   return next();
