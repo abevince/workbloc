@@ -107,6 +107,7 @@ export class UserResolver {
     try {
       const foundUser = await ctx.prisma.user.findFirst({
         where: { email: data.email },
+        select: { id: true },
       });
 
       if (foundUser) {
