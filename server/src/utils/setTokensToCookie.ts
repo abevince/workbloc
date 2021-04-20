@@ -15,8 +15,10 @@ export const setTokenToCookie = ({
     const refreshExpires = now.setDate(now.getDate() + 30);
     reply.setCookie(process.env.COOKIE_NAME || "sessid", sessionToken, {
       path: "/",
+      sameSite: "lax",
       httpOnly: true,
       signed: true,
+      domain: "localhost",
       maxAge: refreshExpires,
     });
   } catch (error) {
