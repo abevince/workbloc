@@ -74,5 +74,18 @@ export class ProfileResolver {
     return !!createdProfile;
   }
 
-  // TODO: editUserProfile mutation
+  @Mutation(() => Boolean)
+  async updateUserProfile(
+    @Arg("args") args: UpdateProfileInput,
+    @Ctx() { prisma }: Context
+  ): Promise<boolean> {
+    console.log(typeof args.where.id);
+    const updatedProfile = await prisma.profile.update({
+      where: { id: args.where.id },
+      data: {
+        ...args.data,
+      },
+    });
+    return !!updatedProfile;
+  }
 }
