@@ -1,4 +1,6 @@
 import { Field, ID, ObjectType, registerEnumType } from "type-graphql";
+import { Profile } from "./Profile.schema";
+import { FieldError } from "./shared/FieldError";
 
 export enum Role {
   USER = "USER",
@@ -43,14 +45,9 @@ export class User {
 
   @Field(() => Date)
   updatedAt: Date;
-}
 
-@ObjectType()
-export class FieldError {
-  @Field()
-  field: string;
-  @Field()
-  message: string;
+  @Field(() => Profile, { nullable: true })
+  profile?: Profile;
 }
 
 @ObjectType()
