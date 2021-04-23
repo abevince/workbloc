@@ -1,12 +1,13 @@
 import "reflect-metadata";
 import Fastify, { FastifyInstance } from "fastify";
 import mercurius from "mercurius";
+import { buildSchema } from "type-graphql";
 import fastifyCors from "fastify-cors";
 import sensible from "fastify-sensible";
 import cookie, { FastifyCookieOptions } from "fastify-cookie";
 
 import { UserResolver } from "./resolvers/User";
-import { buildSchema } from "type-graphql";
+import { ProfileResolver } from "./resolvers/Profile";
 
 import { buildContext } from "./context";
 
@@ -22,7 +23,7 @@ async function main() {
   } as FastifyCookieOptions);
 
   const schema = await buildSchema({
-    resolvers: [UserResolver],
+    resolvers: [UserResolver, ProfileResolver],
     validate: false,
   });
 
