@@ -1,24 +1,23 @@
 import argon2 from "argon2";
 import {
-  Resolver,
-  Query,
-  Mutation,
   Arg,
   Ctx,
+  Mutation,
+  Query,
+  Resolver,
   UseMiddleware,
 } from "type-graphql";
-
 import { Context } from "../../context";
-
+import { isAuth } from "../../middleware/isAuth";
 import { User, UserResponse } from "../../schema/User.schema";
+import { authorizeUser } from "../../utils/authorizeUser";
+import { createSession } from "../../utils/createSession";
+import { logoutUser } from "../../utils/logoutUser";
+import { setTokenToCookie } from "../../utils/setTokensToCookie";
 import { UserInput, UserUniqueInput } from "./inputs";
 import { validateRegisterInput } from "./validation/register.validation";
-import { createSession } from "../../utils/createSession";
-import { setTokenToCookie } from "../../utils/setTokensToCookie";
-import { authorizeUser } from "../../utils/authorizeUser";
-import { isAuth } from "../../middleware/isAuth";
 
-@Resolver()
+@Resolver(User)
 export class UserResolver {
   @Query()
   hello(): string {
@@ -94,6 +93,7 @@ export class UserResolver {
       },
     });
   }
+  // TODO: All users with pagination and search
 
   @Mutation(() => UserResponse)
   async register(
@@ -184,4 +184,15 @@ export class UserResolver {
       throw error;
     }
   }
+
+  @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
+  logout(@Ctx() { reply, redis, auth }: Context): boolean {
+    return logoutUser({ sessionId: auth.sessionToken, redis, reply });
+  }
+
+  // TODO: Create admin user
+  // TODO: Delete user (ADMIN)
+  // TODO: Change user password
+  // TODO: Change user status (ADMIN)
 }
