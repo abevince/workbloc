@@ -2,13 +2,16 @@ import argon2 from "argon2";
 import {
   Arg,
   Ctx,
+  FieldResolver,
   Mutation,
   Query,
   Resolver,
+  Root,
   UseMiddleware,
 } from "type-graphql";
 import { Context } from "../../context";
 import { isAuth } from "../../middleware/isAuth";
+import { Profile } from "../../schema/Profile.schema";
 import { User, UserResponse } from "../../schema/User.schema";
 import { authorizeUser } from "../../utils/authorizeUser";
 import { createSession } from "../../utils/createSession";
@@ -23,6 +26,30 @@ export class UserResolver {
   hello(): string {
     console.log("hey");
     return "hello world";
+  }
+
+  @FieldResolver(() => Profile, { nullable: true })
+  profile(@Root() user: User, @Ctx() ctx: Context): Promise<Profile | null> {
+    return ctx.prisma.user
+      .findUnique({
+        where: { id: user.id },
+        select: {
+          id: true,
+          email: true,
+          role: true,
+          createdAt: true,
+          updatedAt: true,
+          status: true,
+          suspensionReason: true,
+        },
+      })
+      .profile({});
+  }
+
+  @Query(() => Boolean)
+  @UseMiddleware(isAuth)
+  isLoggedIn(): boolean {
+    return true;
   }
 
   @Query(() => UserResponse)
