@@ -50,7 +50,7 @@ export const buildContext = async (
     const { value, valid } = req.unsignCookie(
       req.cookies[process.env.COOKIE_NAME || "sessid"]
     );
-    if (!value || valid === false) {
+    if (!value || !valid) {
       return ctx;
     }
 
