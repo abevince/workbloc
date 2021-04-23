@@ -9,7 +9,7 @@ import {
   Root,
   UseMiddleware,
 } from "type-graphql";
-import { CreateProfileInput } from "./inputs";
+import { CreateProfileInput, UpdateProfileInput } from "./inputs";
 import { isAuth } from "../../middleware/isAuth";
 import { Profile } from "../../schema/Profile.schema";
 import { User } from "../../schema/User.schema";
@@ -23,8 +23,11 @@ export class ProfileResolver {
   }
 
   @FieldResolver(() => User, { nullable: true })
-  user(@Root() profile: Profile, @Ctx() ctx: Context): Promise<User | null> {
-    return ctx.prisma.user.findUnique({
+  user(
+    @Root() profile: Profile,
+    @Ctx() { prisma }: Context
+  ): Promise<User | null> {
+    return prisma.user.findUnique({
       where: { id: profile.userId },
       select: {
         id: true,
@@ -40,9 +43,9 @@ export class ProfileResolver {
 
   @Query(() => Profile, { nullable: true })
   @UseMiddleware(isAuth)
-  async userProfile(@Ctx() ctx: Context): Promise<Profile | null> {
-    const profile = await ctx.prisma.profile.findFirst({
-      where: { userId: ctx.auth.user?.id },
+  async userProfile(@Ctx() { auth, prisma }: Context): Promise<Profile | null> {
+    const profile = await prisma.profile.findFirst({
+      where: { userId: auth.user?.id },
     });
     return profile;
   }
@@ -51,25 +54,25 @@ export class ProfileResolver {
   @UseMiddleware(isAuth)
   async createProfile(
     @Arg("data") data: CreateProfileInput,
-    @Ctx() ctx: Context
+    @Ctx() { auth, prisma }: Context
   ): Promise<boolean> {
-    const profile = await ctx.prisma.profile.findFirst({
-      where: { userId: ctx.auth.user?.id },
+    const profile = await prisma.profile.findFirst({
+      where: { userId: auth.user?.id },
       select: { id: true },
     });
     if (profile) return false;
-    console.log(ctx.auth.user?.id);
-    const x = await ctx.prisma.profile.create({
+    const createdProfile = await prisma.profile.create({
       data: {
-        firstName: data.firstName,
-        lastName: data.lastName,
+        ...data,
         user: {
           connect: {
-            id: ctx.auth.user?.id,
+            id: auth.user?.id,
           },
         },
       },
     });
-    return !!x;
+    return !!createdProfile;
   }
+
+  // TODO: editUserProfile mutation
 }
