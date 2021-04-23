@@ -1,6 +1,7 @@
 import { MiddlewareFn } from "type-graphql";
 
 import { Context } from "../context";
+import { logoutUser } from "../utils/logoutUser";
 
 const AUTH_MESSAGE =
   "Access denied. You need to be authorized to perform this action.";
@@ -17,8 +18,7 @@ export const isAuth: MiddlewareFn<Context> = async (
     throw reply.unauthorized(AUTH_MESSAGE);
   }
   if (auth.user.status !== "ACTIVE") {
-    reply.clearCookie(process.env.COOKIE_NAME || "sessid");
-    redis.del(auth.sessionToken);
+    logoutUser({ sessionId: auth.sessionToken, redis, reply });
     throw reply.forbidden("Suspended account. Logging out now.");
   }
 
