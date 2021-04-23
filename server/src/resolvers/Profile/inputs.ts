@@ -1,4 +1,4 @@
-import { Field, InputType } from "type-graphql";
+import { Field, InputType, Int } from "type-graphql";
 import { Profile } from "../../schema/Profile.schema";
 
 @InputType()
@@ -23,4 +23,18 @@ export class CreateProfileInput implements Partial<Profile> {
 
   @Field(() => String, { nullable: true })
   phoneNumber?: string | undefined;
+}
+@InputType()
+export class ProfileUniqueInput {
+  @Field(() => Int)
+  id: number;
+}
+
+@InputType()
+export class UpdateProfileInput {
+  @Field()
+  data!: CreateProfileInput;
+
+  @Field(() => ProfileUniqueInput, { nullable: false })
+  where!: ProfileUniqueInput;
 }
