@@ -74,12 +74,13 @@ model UserTeam {
 }
 
 model Worklog {
-  id         Int      @id @default(autoincrement())
-  user       User     @relation(fields: [userId], references: [id])
-  userId     String   @map(name: "user_id")
-  createdAt  DateTime @default(now()) @map(name: "created_at")
-  updatedAt  DateTime @updatedAt @map(name: "updated_at")
-  reviewedBy String?  @map(name: "reviewed_by")
+  id         Int           @id @default(autoincrement())
+  user       User          @relation(fields: [userId], references: [id])
+  userId     String        @map(name: "user_id")
+  createdAt  DateTime      @default(now()) @map(name: "created_at")
+  updatedAt  DateTime      @updatedAt @map(name: "updated_at")
+  status     WorklogStatus @default(PENDING)
+  reviewedBy String?       @map(name: "reviewed_by")
   remark     String?
 
   WorklogItem WorklogItem[]
@@ -120,4 +121,10 @@ enum TeamStatus {
   ACTIVE
   DELETED
   SUSPENDED
+}
+
+enum WorklogStatus {
+  PENDING
+  APPROVED
+  DISAPPROVED
 }
