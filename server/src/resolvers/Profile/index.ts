@@ -79,7 +79,6 @@ export class ProfileResolver {
     @Arg("args") args: UpdateProfileInput,
     @Ctx() { prisma }: Context
   ): Promise<boolean> {
-    console.log(typeof args.where.id);
     const updatedProfile = await prisma.profile.update({
       where: { id: args.where.id },
       data: {
