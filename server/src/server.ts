@@ -10,6 +10,7 @@ import { UserResolver } from "./resolvers/User";
 import { ProfileResolver } from "./resolvers/Profile";
 
 import { buildContext } from "./context";
+import { WorklogResolver } from "./resolvers/Worklog";
 
 export async function createServer(
   opts: FastifyServerOptions = {}
@@ -25,7 +26,7 @@ export async function createServer(
   } as FastifyCookieOptions);
 
   const schema = await buildSchema({
-    resolvers: [UserResolver, ProfileResolver],
+    resolvers: [UserResolver, ProfileResolver, WorklogResolver],
     validate: false,
   });
 
