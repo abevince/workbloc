@@ -15,7 +15,8 @@
     "db:init": "npx prisma init",
     "db:generate": "npx prisma generate",
     "db:migrate:new": "npx prisma migrate dev",
-    "db:migrate:up": "npx prisma migrate"
+    "db:migrate:up": "npx prisma migrate",
+    "lint": "eslint src/"
   },
   "keywords": [],
   "author": "Vincent Abesamis (https://github.com/abevince)",
