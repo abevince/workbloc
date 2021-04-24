@@ -123,7 +123,7 @@ export class UserResolver {
   // TODO: All users with pagination and search
 
   @Mutation(() => UserResponse)
-  async register(
+  async createUser(
     @Arg("data") data: UserInput,
     @Ctx() ctx: Context
   ): Promise<UserResponse> {
