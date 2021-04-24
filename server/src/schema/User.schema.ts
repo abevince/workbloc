@@ -23,19 +23,19 @@ registerEnumType(Role, {
 @ObjectType()
 export class User {
   @Field(() => ID)
-  id: string;
+  readonly id!: string;
 
   @Field(() => String)
-  email: string;
+  email!: string;
 
   // @Field(() => String)
   password?: string;
 
   @Field(() => Role, { defaultValue: "USER" })
-  role: "USER" | "ADMIN";
+  role!: "USER" | "ADMIN";
 
   @Field(() => UserStatus, { defaultValue: "ACTIVE" })
-  status: "ACTIVE" | "DELETED" | "SUSPENDED";
+  status!: "ACTIVE" | "DELETED" | "SUSPENDED";
 
   @Field(() => String, { nullable: true })
   suspensionReason?: string | null;
