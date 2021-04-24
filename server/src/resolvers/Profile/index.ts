@@ -52,7 +52,7 @@ export class ProfileResolver {
 
   @Mutation(() => Boolean)
   @UseMiddleware(isAuth)
-  async createProfile(
+  async createUserProfile(
     @Arg("data") data: CreateProfileInput,
     @Ctx() { auth, prisma }: Context
   ): Promise<boolean> {
