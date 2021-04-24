@@ -18,7 +18,7 @@ import { createSession } from "../../utils/createSession";
 import { logoutUser } from "../../utils/logoutUser";
 import { setTokenToCookie } from "../../utils/setTokensToCookie";
 import { UserInput, UserUniqueInput } from "./inputs";
-import { validateRegisterInput } from "./validation/register.validation";
+import { validateCreateUserInput } from "./validation/createUser.validation";
 
 @Resolver(User)
 export class UserResolver {
@@ -127,7 +127,7 @@ export class UserResolver {
     @Arg("data") data: UserInput,
     @Ctx() ctx: Context
   ): Promise<UserResponse> {
-    const errors = validateRegisterInput(data);
+    const errors = validateCreateUserInput(data);
     if (errors) {
       return errors;
     }
