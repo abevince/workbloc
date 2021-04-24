@@ -2,7 +2,9 @@ import { UserResponse } from "../../../schema/User.schema";
 import emailIsValid from "../../../utils/emailIsValid";
 import { UserInput } from "../inputs";
 
-export const validateRegisterInput = (data: UserInput): UserResponse | null => {
+export const validateCreateUserInput = (
+  data: UserInput
+): UserResponse | null => {
   if (!data.email || data.email.trim().length === 0) {
     return {
       errors: [
