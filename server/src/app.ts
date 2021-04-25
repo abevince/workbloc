@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import Fastify, { FastifyInstance, FastifyServerOptions } from "fastify";
+import { FastifyPluginAsync } from "fastify";
 import mercurius from "mercurius";
 import { buildSchema } from "type-graphql";
 import fastifyCors from "fastify-cors";
@@ -12,16 +12,13 @@ import { ProfileResolver } from "./resolvers/Profile";
 import { buildContext } from "./context";
 import { WorklogResolver } from "./resolvers/Worklog";
 
-export async function createServer(
-  opts: FastifyServerOptions = {}
-): Promise<FastifyInstance> {
-  const server = Fastify(opts);
-  server.register(fastifyCors, {
+export const app: FastifyPluginAsync = async (fastify): Promise<void> => {
+  fastify.register(fastifyCors, {
     origin: ["http://localhost:3000"],
     credentials: true,
   });
-  server.register(sensible);
-  server.register(cookie, {
+  fastify.register(sensible);
+  fastify.register(cookie, {
     secret: process.env.COOKIE_SIGNATURE, // for cookies signature
   } as FastifyCookieOptions);
 
@@ -30,29 +27,14 @@ export async function createServer(
     validate: false,
   });
 
-  server.register(mercurius, {
+  fastify.register(mercurius, {
     schema,
     context: buildContext,
     graphiql: true,
   });
 
-  // Server status/health check
-  server.get(`/`, async function () {
+  // fastify status/health check
+  fastify.get(`/`, async function () {
     return { up: true };
   });
-
-  return server;
-}
-
-export async function startServer(): Promise<void> {
-  const server = await createServer({});
-
-  try {
-    const PORT = parseInt(process.env.PORT || "") || 4001;
-    await server.listen(PORT);
-    console.log(`🚀 Server ready at http://localhost:${PORT}/graphiql`);
-  } catch (err) {
-    server.log.error(err);
-    process.exit(1);
-  }
-}
+};
