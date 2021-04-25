@@ -29,8 +29,11 @@ export class UserResolver {
   }
 
   @FieldResolver(() => Profile, { nullable: true })
-  profile(@Root() user: User, @Ctx() ctx: Context): Promise<Profile | null> {
-    return ctx.prisma.user
+  profile(
+    @Root() user: User,
+    @Ctx() { prisma }: Context
+  ): Promise<Profile | null> {
+    return prisma.user
       .findUnique({
         where: { id: user.id },
         select: {
@@ -46,7 +49,7 @@ export class UserResolver {
       .profile({});
   }
 
-  @Query(() => Boolean)
+  @Query()
   @UseMiddleware(isAuth)
   isLoggedIn(): boolean {
     return true;
@@ -54,9 +57,9 @@ export class UserResolver {
 
   @Query(() => UserResponse)
   @UseMiddleware(isAuth)
-  async me(@Ctx() ctx: Context): Promise<UserResponse> {
+  async me(@Ctx() { auth, prisma }: Context): Promise<UserResponse> {
     try {
-      if (!ctx.auth.user) {
+      if (!auth.user) {
         return {
           errors: [
             {
@@ -67,8 +70,8 @@ export class UserResolver {
         };
       }
 
-      const user = await ctx.prisma.user.findUnique({
-        where: { id: ctx.auth.user.id },
+      const user = await prisma.user.findUnique({
+        where: { id: auth.user.id },
       });
       if (!user) {
         return {
@@ -89,8 +92,8 @@ export class UserResolver {
   }
 
   @Query(() => [User])
-  users(@Ctx() ctx: Context): Promise<User[]> {
-    return ctx.prisma.user.findMany({
+  users(@Ctx() { prisma }: Context): Promise<User[]> {
+    return prisma.user.findMany({
       select: {
         id: true,
         email: true,
@@ -102,12 +105,13 @@ export class UserResolver {
       },
     });
   }
+
   @Query(() => User, { nullable: true })
   user(
     @Arg("where") where: UserUniqueInput,
-    @Ctx() ctx: Context
+    @Ctx() { prisma }: Context
   ): Promise<User | null> {
-    return ctx.prisma.user.findUnique({
+    return prisma.user.findUnique({
       where,
       select: {
         id: true,
@@ -125,14 +129,14 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async createUser(
     @Arg("data") data: UserInput,
-    @Ctx() ctx: Context
+    @Ctx() { prisma }: Context
   ): Promise<UserResponse> {
     const errors = validateCreateUserInput(data);
     if (errors) {
       return errors;
     }
     try {
-      const foundUser = await ctx.prisma.user.findFirst({
+      const foundUser = await prisma.user.findFirst({
         where: { email: data.email },
         select: { id: true },
       });
@@ -149,7 +153,7 @@ export class UserResolver {
       }
 
       const hashedPassword = await argon2.hash(data.password);
-      const createdUser = await ctx.prisma.user.create({
+      const createdUser = await prisma.user.create({
         data: {
           email: data.email,
           password: hashedPassword,
