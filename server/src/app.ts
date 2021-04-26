@@ -11,6 +11,7 @@ import { ProfileResolver } from "./resolvers/Profile";
 
 import { buildContext } from "./context";
 import { WorklogResolver } from "./resolvers/Worklog";
+import { WorklogItemResolver } from "./resolvers/WorklogItem";
 
 export const app: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.register(fastifyCors, {
@@ -23,7 +24,12 @@ export const app: FastifyPluginAsync = async (fastify): Promise<void> => {
   } as FastifyCookieOptions);
 
   const schema = await buildSchema({
-    resolvers: [UserResolver, ProfileResolver, WorklogResolver],
+    resolvers: [
+      UserResolver,
+      ProfileResolver,
+      WorklogResolver,
+      WorklogItemResolver,
+    ],
     validate: false,
   });
 
