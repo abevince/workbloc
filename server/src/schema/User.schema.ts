@@ -1,6 +1,7 @@
 import { Field, ID, ObjectType, registerEnumType } from "type-graphql";
 import { Profile } from "./Profile.schema";
 import { FieldError } from "./shared/FieldError";
+import { Worklog } from "./Worklog.schema";
 
 export enum Role {
   USER = "USER",
@@ -47,7 +48,10 @@ export class User {
   updatedAt: Date;
 
   @Field(() => Profile, { nullable: true })
-  profile?: Profile;
+  profile?: Profile | null;
+
+  @Field(() => [Worklog], { nullable: true })
+  worklog?: [Worklog] | null;
 }
 
 @ObjectType()
