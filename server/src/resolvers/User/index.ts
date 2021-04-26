@@ -13,6 +13,7 @@ import { Context } from "../../context";
 import { isAuth } from "../../middleware/isAuth";
 import { Profile } from "../../schema/Profile.schema";
 import { User, UserResponse } from "../../schema/User.schema";
+import { Worklog } from "../../schema/Worklog.schema";
 import { authorizeUser } from "../../utils/authorizeUser";
 import { createSession } from "../../utils/createSession";
 import { logoutUser } from "../../utils/logoutUser";
@@ -26,6 +27,18 @@ export class UserResolver {
   hello(): string {
     console.log("hey");
     return "hello world";
+  }
+
+  @FieldResolver()
+  worklog(
+    @Root() user: User,
+    @Ctx() { prisma }: Context
+  ): Promise<Worklog[] | null> {
+    return prisma.user
+      .findUnique({
+        where: { id: user.id },
+      })
+      .Worklog({});
   }
 
   @FieldResolver(() => Profile, { nullable: true })
