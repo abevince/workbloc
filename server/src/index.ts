@@ -1,7 +1,7 @@
 import fastify, { FastifyInstance } from "fastify";
 import { app } from "./app";
 
-const server: FastifyInstance = fastify();
+export const server: FastifyInstance = fastify();
 
 server.register(app);
 
