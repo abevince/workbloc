@@ -1,11 +1,11 @@
 import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
 import { Context } from "../../context";
+import { WorklogItem } from "../../schema/WorklogItems.schema";
 import {
   CreateWorklogItemInput,
   ParentWorklogItemInput,
-  WorklogItem,
   WorklogItemUniqueInput,
-} from "../../schema/WorklogItems.schema";
+} from "./inputs";
 
 @Resolver()
 export class WorklogItemResolver {
