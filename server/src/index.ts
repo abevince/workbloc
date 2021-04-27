@@ -1,9 +1,4 @@
-import fastify, { FastifyInstance } from "fastify";
-import { app } from "./app";
-
-export const server: FastifyInstance = fastify();
-
-server.register(app);
+import { server } from "./app";
 
 const PORT = parseInt(process.env.PORT || "") || 4001;
 server.listen(PORT, (err) => {

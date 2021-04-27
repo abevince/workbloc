@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { FastifyPluginAsync } from "fastify";
+import Fastify, { FastifyInstance, FastifyPluginAsync } from "fastify";
 import mercurius from "mercurius";
 import { buildSchema } from "type-graphql";
 import fastifyCors from "fastify-cors";
@@ -12,6 +12,8 @@ import { ProfileResolver } from "./resolvers/Profile";
 import { buildContext } from "./context";
 import { WorklogResolver } from "./resolvers/Worklog";
 import { WorklogItemResolver } from "./resolvers/WorklogItem";
+
+const server: FastifyInstance = Fastify();
 
 export const app: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.register(fastifyCors, {
@@ -44,3 +46,7 @@ export const app: FastifyPluginAsync = async (fastify): Promise<void> => {
     return { up: true };
   });
 };
+
+server.register(app);
+export default server;
+export { server };
