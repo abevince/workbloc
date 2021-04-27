@@ -38,6 +38,6 @@ export class Worklog {
   @Field(() => Date)
   updatedAt!: Date;
 
-  @Field(() => WorklogItem, { nullable: true })
-  WorklogItem?: WorklogItem[];
+  @Field(() => [WorklogItem], { nullable: true })
+  worklogItem?: [WorklogItem] | null;
 }
