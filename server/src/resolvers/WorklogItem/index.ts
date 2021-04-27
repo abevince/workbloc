@@ -16,6 +16,7 @@ export class WorklogItemResolver {
   ): Promise<WorklogItem | null> {
     return prisma.worklogItem.findUnique({ where: { id: where.id } });
   }
+
   @Query(() => [WorklogItem], { nullable: true })
   worklogItems(
     @Arg("where") where: ParentWorklogItemInput,
@@ -48,4 +49,14 @@ export class WorklogItemResolver {
   }
   // TODO: Edit worklog item
   // TODO: Delete worklog item
+  @Mutation(() => Boolean)
+  async deleteWorklogItem(
+    @Arg("where") where: WorklogItemUniqueInput,
+    @Ctx() { prisma }: Context
+  ): Promise<boolean> {
+    const deletedWorklogItem = await prisma.worklogItem.delete({
+      where: { id: where.id },
+    });
+    return !!deletedWorklogItem;
+  }
 }
