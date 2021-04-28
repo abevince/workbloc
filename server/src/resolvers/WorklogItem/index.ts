@@ -1,11 +1,15 @@
 import { Arg, Ctx, Mutation, Query, Resolver } from "type-graphql";
 import { Context } from "../../context";
-import { WorklogItem } from "../../schema/WorklogItems.schema";
+import {
+  WorklogItem,
+  WorklogItemResponse,
+} from "../../schema/WorklogItems.schema";
 import {
   CreateWorklogItemInput,
   ParentWorklogItemInput,
   WorklogItemUniqueInput,
 } from "./inputs";
+import { validateCreateWorklogItemInput } from "./validation/worklogItem.validation";
 
 @Resolver()
 export class WorklogItemResolver {
@@ -28,14 +32,18 @@ export class WorklogItemResolver {
       },
     });
   }
-  // TODO: Worklog item input validation
-  @Mutation()
-  addWorklogItem(
+
+  @Mutation(() => WorklogItemResponse)
+  async createWorklogItem(
     @Arg("data") data: CreateWorklogItemInput,
     @Arg("where") where: ParentWorklogItemInput,
     @Ctx() { prisma }: Context
-  ): boolean {
-    const createWorklogItem = prisma.worklogItem.create({
+  ): Promise<WorklogItemResponse> {
+    const validationErrors = validateCreateWorklogItemInput(data);
+    if (validationErrors.length > 0) {
+      return { errors: validationErrors };
+    }
+    const createdWorklogItem = await prisma.worklogItem.create({
       data: {
         ...data,
         worklog: {
@@ -45,10 +53,10 @@ export class WorklogItemResolver {
         },
       },
     });
-    return !!createWorklogItem;
+    return { worklogItem: createdWorklogItem };
   }
   // TODO: Edit worklog item
-  // TODO: Delete worklog item
+
   @Mutation(() => Boolean)
   async deleteWorklogItem(
     @Arg("where") where: WorklogItemUniqueInput,
