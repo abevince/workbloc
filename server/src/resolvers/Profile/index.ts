@@ -1,6 +1,7 @@
 import { Context } from "../../context";
 import {
   Arg,
+  Args,
   Ctx,
   FieldResolver,
   Mutation,
@@ -9,7 +10,11 @@ import {
   Root,
   UseMiddleware,
 } from "type-graphql";
-import { CreateProfileInput, UpdateProfileInput } from "./inputs";
+import {
+  CreateProfileInput,
+  FindManyProfileArgs,
+  UpdateProfileInput,
+} from "./inputs";
 import { isAuth } from "../../middleware/isAuth";
 import { Profile } from "../../schema/Profile.schema";
 import { User } from "../../schema/User.schema";
@@ -48,6 +53,14 @@ export class ProfileResolver {
       where: { userId: auth.user?.id },
     });
     return profile;
+  }
+
+  @Query(() => [Profile])
+  profiles(
+    @Ctx() { prisma }: Context,
+    @Args() args: FindManyProfileArgs
+  ): Promise<Profile[]> {
+    return prisma.profile.findMany(args);
   }
 
   @Mutation(() => Boolean)
