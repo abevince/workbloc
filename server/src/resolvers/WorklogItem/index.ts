@@ -4,9 +4,11 @@ import {
   WorklogItem,
   WorklogItemResponse,
 } from "../../schema/WorklogItems.schema";
+import { isToday } from "../../utils/isToday";
 import {
   CreateWorklogItemInput,
   ParentWorklogItemInput,
+  UpdateWorklogItemInput,
   WorklogItemUniqueInput,
 } from "./inputs";
 import { validateCreateWorklogItemInput } from "./validation/worklogItem.validation";
@@ -36,19 +38,45 @@ export class WorklogItemResolver {
   @Mutation(() => WorklogItemResponse)
   async createWorklogItem(
     @Arg("data") data: CreateWorklogItemInput,
-    @Arg("where") where: ParentWorklogItemInput,
-    @Ctx() { prisma }: Context
+    @Ctx() { auth, prisma }: Context
   ): Promise<WorklogItemResponse> {
     const validationErrors = validateCreateWorklogItemInput(data);
     if (validationErrors.length > 0) {
       return { errors: validationErrors };
     }
+
+    const worklog = await prisma.worklog.findFirst({
+      where: { userId: auth.user?.id },
+      select: { createdAt: true, id: true },
+      orderBy: { id: "desc" },
+    });
+
+    if (worklog) {
+      if (isToday(worklog.createdAt)) {
+        const createdWorklogItem = await prisma.worklogItem.create({
+          data: {
+            ...data,
+            worklog: {
+              connect: {
+                id: worklog.id,
+              },
+            },
+          },
+        });
+        return { worklogItem: createdWorklogItem };
+      }
+    }
+
     const createdWorklogItem = await prisma.worklogItem.create({
       data: {
         ...data,
         worklog: {
-          connect: {
-            id: where.worklogId,
+          create: {
+            user: {
+              connect: {
+                id: auth.user?.id,
+              },
+            },
           },
         },
       },
@@ -56,6 +84,18 @@ export class WorklogItemResolver {
     return { worklogItem: createdWorklogItem };
   }
   // TODO: Edit worklog item
+  @Mutation(() => WorklogItem)
+  async updateWorklogItem(
+    @Arg("data") data: UpdateWorklogItemInput,
+    @Arg("where") where: WorklogItemUniqueInput,
+    @Ctx() { prisma }: Context
+  ): Promise<WorklogItem> {
+    const updatedWorklogItem = await prisma.worklogItem.update({
+      where,
+      data,
+    });
+    return updatedWorklogItem;
+  }
 
   @Mutation(() => Boolean)
   async deleteWorklogItem(

@@ -9,14 +9,26 @@ export class WorklogItemUniqueInput implements Partial<WorklogItem> {
 
 @InputType()
 export class CreateWorklogItemInput implements Partial<WorklogItem> {
-  @Field(() => Date, { nullable: false })
-  timeFrom!: Date;
+  @Field(() => String, { nullable: false })
+  timeFrom!: string;
 
-  @Field(() => Date, { nullable: false })
-  timeTo!: Date;
+  @Field(() => String, { nullable: false })
+  timeTo!: string;
 
   @Field(() => String, { nullable: false })
   workDone!: string;
+}
+
+@InputType()
+export class UpdateWorklogItemInput implements Partial<WorklogItem> {
+  @Field(() => String, { nullable: true })
+  timeFrom?: string;
+
+  @Field(() => String, { nullable: true })
+  timeTo?: string;
+
+  @Field(() => String, { nullable: true })
+  workDone?: string;
 }
 
 @InputType()
