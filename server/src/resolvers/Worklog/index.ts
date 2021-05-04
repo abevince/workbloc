@@ -12,7 +12,7 @@ import { User } from "../../schema/User.schema";
 import { Worklog } from "../../schema/Worklog.schema";
 import { WorklogItem } from "../../schema/WorklogItems.schema";
 import { isToday } from "../../utils/isToday";
-import { WorklogUniqueInput } from "./inputs";
+import { UpdateWorklogStatusInput, WorklogUniqueInput } from "./inputs";
 
 @Resolver(Worklog)
 export class WorklogResolver {
@@ -88,5 +88,19 @@ export class WorklogResolver {
       },
     });
     return !!createdWorklog;
+  }
+
+  // TODO: Change worklog status
+  @Mutation(() => Boolean)
+  async updateWorklogStatus(
+    @Arg("where") where: WorklogUniqueInput,
+    @Arg("data") data: UpdateWorklogStatusInput,
+    @Ctx() { prisma }: Context
+  ): Promise<boolean> {
+    const updatedWorklog = await prisma.worklog.update({
+      where,
+      data,
+    });
+    return !!updatedWorklog;
   }
 }
