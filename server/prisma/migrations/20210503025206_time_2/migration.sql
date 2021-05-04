@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "worklog_items" ALTER COLUMN "time_from" SET DATA TYPE TIMETZ,
+ALTER COLUMN "time_to" SET DATA TYPE TIMETZ;

@@ -89,12 +89,12 @@ model Worklog {
 }
 
 model WorklogItem {
-  id        Int      @id @default(autoincrement())
-  worklog   Worklog  @relation(fields: [worklogId], references: [id])
-  worklogId Int      @map(name: "worklog_id")
-  timeFrom  DateTime @map(name: "time_from") @db.Time
-  timeTo    DateTime @map(name: "time_to") @db.Time
-  workDone  String   @map(name: "work_done")
+  id        Int     @id @default(autoincrement())
+  worklog   Worklog @relation(fields: [worklogId], references: [id])
+  worklogId Int     @map(name: "worklog_id")
+  timeFrom  String  @map(name: "time_from") @db.VarChar(16)
+  timeTo    String  @map(name: "time_to") @db.VarChar(16)
+  workDone  String  @map(name: "work_done")
 
   @@index([worklogId], name: "worklog_items.worklog_id")
   @@map(name: "worklog_items")

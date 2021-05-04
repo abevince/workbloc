@@ -13,11 +13,11 @@ export class WorklogItem {
   @Field(() => Int, { nullable: false })
   worklogId!: number;
 
-  @Field(() => Date, { nullable: false })
-  timeFrom!: Date;
+  @Field(() => String, { nullable: false })
+  timeFrom!: string;
 
-  @Field(() => Date, { nullable: false })
-  timeTo!: Date;
+  @Field(() => String, { nullable: false })
+  timeTo!: string;
 
   @Field(() => String, { nullable: false })
   workDone!: string;
