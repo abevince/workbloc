@@ -144,9 +144,9 @@ export class UserResolver {
     @Arg("data") data: CreateUserInput,
     @Ctx() { prisma }: Context
   ): Promise<UserResponse> {
-    const errors = validateCreateUserInput(data);
-    if (errors) {
-      return errors;
+    const validationErrors = validateCreateUserInput(data);
+    if (validationErrors.length > 0) {
+      return { errors: validationErrors };
     }
     try {
       const foundUser = await prisma.user.findFirst({
