@@ -18,7 +18,7 @@ import { authorizeUser } from "../../utils/authorizeUser";
 import { createSession } from "../../utils/createSession";
 import { logoutUser } from "../../utils/logoutUser";
 import { setTokenToCookie } from "../../utils/setTokensToCookie";
-import { UserInput, UserUniqueInput } from "./inputs";
+import { CreateUserInput, LoginUserInput, UserUniqueInput } from "./inputs";
 import { validateCreateUserInput } from "./validation/createUser.validation";
 
 @Resolver(User)
@@ -141,7 +141,7 @@ export class UserResolver {
 
   @Mutation(() => UserResponse)
   async createUser(
-    @Arg("data") data: UserInput,
+    @Arg("data") data: CreateUserInput,
     @Ctx() { prisma }: Context
   ): Promise<UserResponse> {
     const errors = validateCreateUserInput(data);
@@ -170,6 +170,12 @@ export class UserResolver {
         data: {
           email: data.email,
           password: hashedPassword,
+          profile: {
+            create: {
+              firstName: data.firstName,
+              lastName: data.lastName,
+            },
+          },
         },
       });
       if (!createdUser) throw new Error();
@@ -182,7 +188,7 @@ export class UserResolver {
 
   @Mutation(() => UserResponse)
   async login(
-    @Arg("data") data: UserInput,
+    @Arg("data") data: LoginUserInput,
     @Ctx() { prisma, request, reply, redis }: Context
   ): Promise<UserResponse> {
     try {

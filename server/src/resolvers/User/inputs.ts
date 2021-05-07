@@ -3,24 +3,39 @@ import { Field, InputType } from "type-graphql";
 import { User } from "../../schema/User.schema";
 
 @InputType()
-export class UserInput implements Partial<User> {
-  @Field()
+export class CreateUserInput implements Partial<User> {
+  @Field(() => String, { nullable: false })
+  email!: string;
+
+  @Field(() => String, { nullable: false })
+  password!: string;
+
+  @Field(() => String, { nullable: false })
+  firstName!: string;
+
+  @Field(() => String, { nullable: false })
+  lastName!: string;
+}
+
+@InputType()
+export class LoginUserInput implements Partial<User> {
+  @Field(() => String, { nullable: false })
   email: string;
 
-  @Field()
+  @Field(() => String, { nullable: false })
   password: string;
 }
 
 @InputType()
-export class CreateAdminInput extends UserInput {
+export class CreateAdminInput extends CreateUserInput {
   @Field()
-  role: string;
+  role!: string;
 }
 
 @InputType()
 export class UserUniqueInput implements Partial<User> {
   @Field()
-  id: string;
+  id!: string;
 }
 
 @InputType()
