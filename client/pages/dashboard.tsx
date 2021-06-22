@@ -1,7 +1,9 @@
-import DashboardScreen from '../src/screens/DashboardScreen'
-
-export default function HomePage() {
-  return <DashboardScreen />
+export default function DashboardPage() {
+  return (
+    <div>
+      <h1>Dashboard: Hello </h1>
+    </div>
+  )
 }
 
 // const withAuth: GetServerSideProps = async (ctx) => {
@@ -13,21 +15,21 @@ export default function HomePage() {
 
 //   const res = await fetch('http://localhost:4001/graphql', {
 //     method: 'POST',
-//     credentials: 'same-origin',
+//     credentials: 'include',
 //     headers: fetchHeader,
 //     body: JSON.stringify({ query: ME_QUERY }),
 //   })
 //   const result = await res.json()
-//   if (result.data || !result.errors) {
+//   if (!result.data || result.errors) {
 //     return {
 //       props: {},
 //       redirect: {
-//         destination: '/dashboard',
+//         destination: '/',
 //         permanent: false,
 //       },
 //     }
 //   }
 
-//   return { props: {} }
+//   return { props: { user: result.data?.me?.user } }
 // }
 // export const getServerSideProps = withAuth

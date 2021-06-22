@@ -1,11 +1,11 @@
 import Head from 'next/head'
 import * as React from 'react'
 
-const Layout: React.FC = ({ children }) => {
+const CustomHead: React.FC = ({ children }) => {
   return (
     <>
       <Head>
-        <title>Typebit</title>
+        <title>Aralinks - Workbloc</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
         <link rel="preconnect" href="https://fonts.gstatic.com" />
         <link
@@ -14,10 +14,9 @@ const Layout: React.FC = ({ children }) => {
         />
         <link rel="shortcut icon" href="/favicon.ico" />
       </Head>
-
-      {children}
+      <div className="bg-gray-100">{children}</div>
     </>
   )
 }
 
-export default Layout
+export default CustomHead

@@ -1,45 +1,65 @@
-import { useRouter } from 'next/dist/client/router'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 
-import { useLoginMutation } from '../generated/graphql'
+import InputField from '../components/InputField'
+import { useSignUpMutation } from '../generated/graphql'
 
-import InputField from './InputField'
-
-interface IFormData {
+interface ISignUpFormData {
+  firstName: string
+  lastName: string
   email: string
   password: string
 }
-
-const LoginForm = () => {
-  const router = useRouter()
-  const { mutateAsync } = useLoginMutation()
+const SignUpForm = () => {
+  const { mutateAsync } = useSignUpMutation()
   const {
     register,
     handleSubmit,
     setFocus,
-    setError,
     formState: { errors },
-  } = useForm<IFormData>({
+  } = useForm<ISignUpFormData>({
     defaultValues: {},
   })
 
   useEffect(() => {
-    setFocus('email')
+    setFocus('firstName')
   }, [setFocus])
 
   const onSubmit = handleSubmit(async (data) => {
     const user = await mutateAsync(data)
-    if (user.login.errors) {
-      setError('email', { message: user.login.errors[0].message })
-      setError('password', { message: ' ' })
-    } else if (user.login.user) {
-      router.push('/')
+    if (user.createUser.errors) {
+      console.log(user.createUser.errors)
+    } else if (user.createUser.user) {
+      console.log(user.createUser.user)
     }
   })
 
   return (
-    <form onSubmit={onSubmit} noValidate className="space-y-4">
+    <form
+      onSubmit={onSubmit}
+      noValidate
+      className="space-y-3 text-gray-600 md:w-96"
+    >
+      <div className="flex space-x-3">
+        <InputField
+          label="First name"
+          type="text"
+          placeholder="Jennifer"
+          {...register('firstName', {
+            required: 'First name is required',
+          })}
+          error={errors.firstName?.message}
+        />
+        <InputField
+          label="Last name"
+          type="text"
+          placeholder="Dela Cruz"
+          {...register('lastName', {
+            required: 'Last name is required',
+          })}
+          error={errors.lastName?.message}
+        />
+      </div>
       <InputField
         label="Email"
         type="email"
@@ -66,15 +86,17 @@ const LoginForm = () => {
         })}
         error={errors.password?.message}
       />
+
+      <p className="text-xs text-gray-500">I will now have all of your data.</p>
       <button
         type="submit"
         // disabled={fetching}
         className="px-8 flex justify-center py-2 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 w-full"
       >
-        Sign in
+        Create my account
       </button>
     </form>
   )
 }
 
-export default LoginForm
+export default SignUpForm

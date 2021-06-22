@@ -13,10 +13,7 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
   ({ label, type = 'text', optLabel, error, name, ...props }, ref) => (
     <div className="text-left">
       <div className="flex justify-between">
-        <label
-          htmlFor={name}
-          className="block font-medium text-gray-700 text-base"
-        >
+        <label htmlFor={name} className="block font-medium text-sm">
           {label}
         </label>
         {optLabel ? (
@@ -32,14 +29,14 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
           className={`${
             error
               ? 'border-red-300 text-red-900 placeholder-red-300 focus:ring-red-500 focus:border-red-500'
-              : 'focus:ring-blue-500 focus:border-blue-500 border-gray-300'
+              : 'focus:ring-blue-500 focus:border-blue-500 border-gray-300 text-gray-800'
           } shadow-sm  block w-full sm:text-sm  rounded-md`}
           {...props}
         />
       </div>
-      {error ? <p className="mt-2 text-sm text-red-500">{error}</p> : null}
+      {error ? <p className="mt-2 text-xs text-red-500">{error}</p> : null}
     </div>
-  ),
+  )
 )
 
 export default InputField
